@@ -1,41 +1,54 @@
-from data.downloader import download_stock
-from indicators.moving_average import add_moving_averages
-from analysis.trend import analyze_trend
+from services.analysis_service import AnalysisService
 
 
 def main():
+
     print("=" * 50)
     print("PSX AI Institutional Analyzer")
     print("=" * 50)
 
-    symbol = input("Enter Symbol: ")
+    symbol = input("Enter Symbol: ").upper()
 
-    # Download stock data
-    df = download_stock(symbol)
+    try:
 
-    # Calculate indicators
-    df = add_moving_averages(df)
+        result = AnalysisService().analyze(symbol)
 
-    # Latest candle
-    latest = df.iloc[-1]
+        print()
+        print("=" * 50)
+        print(f"Ticker : {result.symbol}")
+        print("=" * 50)
 
-    # Analyze trend
-    trend, score = analyze_trend(latest)
+        print("\nTREND")
+        print("-" * 30)
 
-    print()
-    print(f"Ticker        : {symbol}")
-    print(f"Current Price : {latest['Close']:.2f}")
+        print(f"Trend       : {result.trend.trend}")
+        print(f"Score       : {result.trend.score}/10")
+        print(f"Confidence  : {result.trend.confidence}%")
 
-    print("\nTrend")
-    print("-" * 30)
-    print(f"EMA20   : {latest['EMA20']:.2f}")
-    print(f"EMA50   : {latest['EMA50']:.2f}")
-    print(f"EMA100  : {latest['EMA100']:.2f}")
-    print(f"SMA200  : {latest['SMA200']:.2f}")
+        print()
+        print(f"EMA20   : {result.trend.ema20:.2f}")
+        print(f"EMA50   : {result.trend.ema50:.2f}")
+        print(f"EMA100  : {result.trend.ema100:.2f}")
+        print(f"SMA200  : {result.trend.sma200:.2f}")
 
-    print()
-    print(f"Trend : {trend}")
-    print(f"Score : {score}/10")
+        print("\nPRICE STRUCTURE")
+        print("-" * 30)
+
+        print(f"Structure : {result.structure.structure}")
+        print(f"Score     : {result.structure.score}/10")
+
+        print(f"Higher Highs : {result.structure.higher_highs}")
+        print(f"Higher Lows  : {result.structure.higher_lows}")
+
+        print("\nVOLUME")
+        print("-" * 30)
+
+        print(f"Status : {result.volume.status}")
+        print(f"Score  : {result.volume.score}/10")
+        print(f"RVOL   : {result.volume.relative_volume:.2f}")
+
+    except Exception as e:
+        print(f"\nError: {e}")
 
 
 if __name__ == "__main__":
